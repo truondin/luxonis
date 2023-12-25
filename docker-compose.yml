@@ -1,0 +1,43 @@
+version: '3'
+
+services:
+  postgres:
+    container_name: postgres
+    image: postgres:alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=sreality
+#    volumes:
+#      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  scrapy:
+    container_name: scrapy
+    build: ./scrapy
+    restart: on-failure
+    depends_on:
+      - postgres
+    networks:
+      - backend
+
+  web:
+    container_name: web_server
+    build: ./http_server
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    networks:
+      - backend
+
+networks:
+  backend:
+
+#volumes:
+#  postgres_data:
+#    driver: local
